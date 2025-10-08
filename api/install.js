@@ -21,14 +21,17 @@ export default async function handler(req, res) {
   }
 
   await query(
-    `
-    insert into installs (user_id, app_version, os, first_seen, last_seen)
-    values ($1, $2, $3, now(), now())
-    on conflict (user_id, app_version, os)
-    do update set last_seen = excluded.last_seen
-    `,
-    [userId, appVersion, os]
-  );
+  `
+  insert into installs (user_id, app_version, os, first_seen, last_seen)
+  values ($1, $2, $3, now(), now())
+  on conflict (user_id)
+  do update set 
+    app_version = excluded.app_version,
+    os = excluded.os,
+    last_seen = excluded.last_seen
+  `,
+  [userId, appVersion, os]
+);
 
   return res.json({ ok: true });
 }
